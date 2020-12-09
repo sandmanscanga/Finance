@@ -4,8 +4,6 @@ from bs4 import BeautifulSoup
 
 BASE_URL = "https://www.tdameritrade.com"
 
-# https://www.tdameritrade.com/search/results.page?q=nvda
-
 
 def search_td(query):
     """Search TD Ameritrade"""
@@ -16,10 +14,18 @@ def search_td(query):
     return soup
 
 
+def get_first_results_url(soup):
+    """Get first result"""
+    div = soup.findAll("div", {"class": ["module-container"]})[2]
+    anchor = div.find("a")
+    href = anchor.get("href")
+    return href
+
 def main():
     """Main"""
     soup = search_td("nvda")
-    print(soup.prettify())
+    href = get_first_results_url(soup)
+    print(href)
 
 
 if __name__ == "__main__":
