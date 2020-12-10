@@ -1,0 +1,4 @@
+* Go to TD Ameritrade (Grab URL)
+* Loosely search for a stock (FDX or FedEx...)
+* Go to Fundamentals -> Balance Sheet/Income Statement/ Cash Flow Statement
+--GOAL-- Scrape company/Peer competitors data
