@@ -2,12 +2,13 @@
 import requests
 from bs4 import BeautifulSoup
 
-BASE_URL = "https://www.tdameritrade.com"
+STOCK = "nvda"
 
 
 def search_td(query):
     """Search TD Ameritrade"""
-    url = f"{BASE_URL}/search/results.page?q={query}"
+    base_url = "https://www.tdameritrade.com"
+    url = f"{base_url}/search/results.page?q={query}"
     response = requests.get(url)
     html = response.text
     soup = BeautifulSoup(html, "lxml")
@@ -27,33 +28,35 @@ def extract_symbol(url):
     return url.split("&")[-1].split("=")[-1]
 
 
-def get_fundamental_data(symbol):
+def get_fund_data(symbol):
     """Get fundamental data from extracted symbol"""
     res_url = "https://research.tdameritrade.com"
-    fund_url = f"{res_url}/public/stocks/overview/overview.asp"
-    params = {
-        "fromPage": "overview",
-        "display": "",
-        "fromSearch": "true",
-        "symbol": symbol
-    }
-    resp = requests.get(fund_url, params=params)
-    html = resp.text
-    soup = BeautifulSoup(html, "lxml")
-    return soup
+    fund_url = f"{res_url}/grid/public/research/stocks/fundamentals"
+    resp = requests.get(fund_url, params={"symbol": symbol})
+    return BeautifulSoup(resp.text, "lxml")
 
-def extract_fund_href(soup):
+
+def extract_fund_hrefs(soup):
+    """Extracts hrefs from fundamental data"""
     div = soup.find("div", {"class": ["stock-fundamentals-page"]})
-    print(div.prettify())
+    nav = div.find("nav").find("nav")
+
+    hrefs = []
+    for anchor in nav.findAll("a"):
+        href = anchor.get("href")
+        hrefs.append(href)
+
+    return hrefs
 
 
 def main():
     """Main"""
-    soup = search_td("nvda")
+    soup = search_td(STOCK)
     results_url = get_first_results_url(soup)
     symbol = extract_symbol(results_url)
-    soup = get_fundamental_data(symbol)
-    extract_fund_href(soup)
+    soup = get_fund_data(symbol)
+    hrefs = extract_fund_hrefs(soup)
+    print(hrefs)
 
 
 if __name__ == "__main__":
